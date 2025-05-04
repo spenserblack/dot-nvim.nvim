@@ -104,11 +104,10 @@ if is_file(extensions_file) then
   extensions = sandbox_require(extensions_file)
   if type(extensions) ~= "table" then
     vim.print(".nvim/extensions module did not return a table")
+    extensions = nil
     return
   end
 end
-
-vim.print("Extensions:", extensions)
 
 local settings_file = path_join(dot_nvim, "settings.lua")
 if is_file(settings_file) then
@@ -121,3 +120,18 @@ if is_file(settings_file) then
   end
   sandbox_require(settings_file, { VimOpt = VimOpt })
 end
+
+-- Shows a list of recommended extensions.
+local function show_recommended_extensions()
+  if extensions then
+    for _, ext in ipairs(extensions) do
+      vim.print(ext)
+    end
+  else
+    vim.print("No recommended extensions")
+  end
+end
+
+vim.api.nvim_create_user_command("ShowRecommendedExtensions", show_recommended_extensions, {
+  nargs = 0,
+})
