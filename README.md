@@ -18,7 +18,7 @@ modules.
 ### `.nvim/extensions.lua`
 
 This module should return a table of recommended extensions. Extensions will *not* be
-installed. Users can view recommended extensions by calling
+automatically installed. Users can view recommended extensions by calling
 `:ShowRecommendedExtensions`.
 
 To be honest, you could just *read* `.nvim/extensions.lua` instead of calling
