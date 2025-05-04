@@ -45,7 +45,7 @@ This module will define settings. The global `VimOpt` function is available to s
 ```lua
 -- settings.lua
 VimOpt {
-  colorcolumn = 88,
+  colorcolumn = "88",
   spell = true,
 }
 ```
