@@ -99,7 +99,7 @@ local extensions_file = path_join(dot_nvim, "extensions.lua")
 local extensions = nil
 if is_file(extensions_file) then
   extensions = sandbox_require(extensions_file)
-  if type(extensions) ~= "table" then
+  if extensions and (type(extensions) ~= "table") then
     vim.print(".nvim/extensions module did not return a table")
     extensions = nil
     return
