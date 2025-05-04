@@ -1,5 +1,24 @@
 -- NOTE See https://neovim.io/doc/user/lua.html
 
+-- Runs a function in a sandboxed environment.
+---@param path string The path to the file to require in the sandboxed environment.
+local function sandbox_require(path)
+  -- A safe environment to run 3rd party scripts.
+  local sandbox_env = {
+    -- Global functions
+    ipairs = ipairs,
+    pairs = pairs,
+    print = print,
+    require = require,
+    -- Global tables/libraries
+    string = string,
+    table = table,
+  }
+
+  local value = loadfile(path, "t", sandbox_env)()
+  return value
+end
+
 -- Normalizes a path to use "/" as the separator.
 ---@param path string
 local function path_normalize(path)
@@ -21,6 +40,26 @@ local function path_join(left, right)
   return string.format("%s/%s", left, right)
 end
 
+-- Checks if the path exists and is a file type.
+---@param path string The path to check.
+---@param file_type "directory" | "file" The type of file to check for.
+local function is_file_type(path, file_type)
+  local stats = vim.uv.fs_stat(path)
+  return (stats and stats.type) == file_type
+end
+
+-- Checks if the path exists and is a directory.
+---@param path string The path to check.
+local function is_directory(path)
+  return is_file_type(path, "directory")
+end
+
+-- Check if the path exists and is a file.
+--@param path string The path to check.
+local function is_file(path)
+  return is_file_type(path, "file")
+end
+
 ---@type string | nil
 local base_home_dir = vim.uv.os_homedir()
 if not base_home_dir then
@@ -36,9 +75,7 @@ local function find_dot_nvim(path)
   local dot_nvim = ".nvim"
   while not (path == "" or path == "/" or path == home_dir) do
     local maybe_dot_nvim = path_join(path, dot_nvim)
-    local stats = vim.uv.fs_stat(maybe_dot_nvim)
-    local type = stats and stats.type
-    if type == "directory" then
+    if is_directory(maybe_dot_nvim) then
       return maybe_dot_nvim
     end
     path = path_pop(path)
@@ -53,4 +90,17 @@ if dot_nvim then
   vim.print(".nvim found at " .. dot_nvim)
 else
   vim.print(".nvim not found")
+  return
 end
+
+local extensions_file = path_join(dot_nvim, "extensions.lua")
+local extensions = nil
+if is_file(extensions_file) then
+  extensions = sandbox_require(extensions_file)
+  if type(extensions) ~= "table" then
+    vim.print(".nvim/extensions module did not return a table")
+    return
+  end
+end
+
+vim.print("Extensions:", extensions)
