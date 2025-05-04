@@ -91,10 +91,7 @@ local cwd = path_normalize(vim.uv.cwd())
 
 local dot_nvim = find_dot_nvim(cwd)
 
-if dot_nvim then
-  vim.print(".nvim found at " .. dot_nvim)
-else
-  vim.print(".nvim not found")
+if not dot_nvim then
   return
 end
 
