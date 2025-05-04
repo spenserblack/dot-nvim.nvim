@@ -2,7 +2,9 @@
 
 -- Runs a function in a sandboxed environment.
 ---@param path string The path to the file to require in the sandboxed environment.
-local function sandbox_require(path)
+---@param extra_env? table Extra global variables to add to the sandbox.
+local function sandbox_require(path, extra_env)
+  extra_env = extra_env or {}
   -- A safe environment to run 3rd party scripts.
   local sandbox_env = {
     -- Global functions
@@ -14,6 +16,9 @@ local function sandbox_require(path)
     string = string,
     table = table,
   }
+  for k, v in pairs(extra_env) do
+    sandbox_env[k] = v
+  end
 
   local value = loadfile(path, "t", sandbox_env)()
   return value
@@ -104,3 +109,15 @@ if is_file(extensions_file) then
 end
 
 vim.print("Extensions:", extensions)
+
+local settings_file = path_join(dot_nvim, "settings.lua")
+if is_file(settings_file) then
+  -- Takes a key-value table of `vim.opt` options and sets them.
+  ---@param opts table The options to set.
+  local function VimOpt(opts)
+    for k, v in pairs(opts) do
+      vim.opt[k] = v
+    end
+  end
+  sandbox_require(settings_file, { VimOpt = VimOpt })
+end

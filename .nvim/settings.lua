@@ -1,0 +1,3 @@
+VimOpt {
+  colorcolumn = "88",
+}
