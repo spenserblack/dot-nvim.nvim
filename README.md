@@ -21,6 +21,10 @@ This module should return a table of recommended extensions. Extensions will *no
 installed. Users can view recommended extensions by calling
 `:ShowRecommendedExtensions`.
 
+To be honest, you could just *read* `.nvim/extensions.lua` instead of calling
+`:ShowRecommendedExtensions`, and it would be roughly as useful. Ideas on how to make
+this more useful are welcome.
+
 #### Example
 
 ```lua
